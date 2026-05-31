@@ -8,8 +8,8 @@ class KliensNemTalalhato(Exception):
 
 
 
-class TokenekSzamaElfogyot(Exception):
-    def __init__(self, message="El fogyotak a tokenjeid"):
-        super().__init__(message)   
+class BeszélgetésekSzamaElfogyot(Exception):
+    def __init__(self, message="Nem tudsz többet beszélni vele"):
+        super().__init__(message) 
 
 

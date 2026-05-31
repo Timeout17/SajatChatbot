@@ -4,9 +4,10 @@ itt fogunk tudni.
 """
 
 import os
-from groq import Groq
+from groq import Groq, RateLimitError
 from CreateAgent import CreateCAgentClass
-from SajatKivetelek import KliensNemTalalhato, TokenekSzamaElfogyot
+from SajatKivetelek import KliensNemTalalhato, BeszélgetésekSzamaElfogyot
+from AgentManager import AgentManagerClass
 
 
 class UseAgentClass():
@@ -14,6 +15,7 @@ class UseAgentClass():
     def __init__(self, model: str = "llama-3.3-70b-versatile"):
         self.model = model
         self.history = []
+        self.manager = AgentManagerClass()
 
     def Answer(self) -> str:
         """
@@ -41,14 +43,19 @@ class UseAgentClass():
                 "content": message
             }
         ]     
+        try:
+            response = client.chat.completions.create(
+                model = self.model,
+                messages = content,
+                temperature = 0.5,
+                max_completion_tokens = 1024,
+            )
 
-        response = client.chat.completions.create(
-            model = self.model,
-            messages = content,
-            temperature = 0.5,
-            max_completion_tokens = 1024,
-        )
+        except RateLimitError as r:
+            print("API limit túlterhelve")
 
+        except BeszélgetésekSzamaElfogyot as e:
+            print("Saját limit elérve")
         ai_answer: str = response.choices[0].message.content 
         
         self.history.append({
@@ -61,6 +68,8 @@ class UseAgentClass():
             "content": ai_answer
         })
 
+
+        self.manager.used += 1
         return ai_answer
 
 if __name__ == "__main__":
