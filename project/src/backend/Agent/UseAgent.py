@@ -16,8 +16,6 @@ class UseAgentClass():
         self.model = model
         self.history = []
         self.manager = AgentManagerClass()
-        self.role = RoleClass()
-        self.message = MessageClass()
 
     def DefineAgent(self) -> None | CreateCAgentClass:
         """
@@ -35,12 +33,12 @@ class UseAgentClass():
     
     def Memory(self, message: str, ai_message: str) -> None:           
         self.history.append({
-            "role": self.role.USER,
+            "role": RoleClass.USER.value,
             "content": message
         })
 
         self.history.append({
-            "role": self.role.ASSISTANT,
+            "role": RoleClass.ASSISTANT.value,
             "content": ai_message
         })
 
@@ -60,17 +58,17 @@ class UseAgentClass():
 
         message: str = input("kérdez bármit: ")
 
-        self.message(message, self.role.USER, None)
+        user_message: MessageClass = MessageClass(message=message, role=RoleClass.USER)
 
         content: list[dict[str, str]] = [
             {
-                "role": self.role.SYSTEM.value,
+                "role": RoleClass.SYSTEM.value,
                 "content": "Magyarul beszélsz. Kedves és segítő kész vagy"
             }
             ] + self.history +[
             {
-                "role": self.role.USER.value,
-                "content": self.message.message
+                "role": RoleClass.USER.value,
+                "content": message
             }
         ]     
         try:
@@ -93,9 +91,16 @@ class UseAgentClass():
 
         self.Memory(message=message, ai_message=ai_answer)
 
+        metadata = {
+            "model": response.model,
+            "tokens_prompt": response.usage.prompt_tokens,
+            "tokens_completion": response.usage.completion_tokens,
+            "tokens_total": response.usage.total_tokens,
+            "response_id": response.id,
+            "created": response.created
+        }
 
-
-        self.message(ai_answer, self.role.ASSISTANT, )
+        ai_message: MessageClass = MessageClass(message=ai_answer, role=RoleClass.ASSISTANT, metadata=metadata)
 
         return ai_answer
 
