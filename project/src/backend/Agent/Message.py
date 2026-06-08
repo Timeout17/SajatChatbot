@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import uuid
 from typing import Optional, Dict
-from src.Role import RoleClass
+from project.src.backend.Agent.Role import RoleClass
 
 
 

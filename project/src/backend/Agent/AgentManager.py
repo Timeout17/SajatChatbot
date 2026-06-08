@@ -1,5 +1,5 @@
 
-from src.SajatKivetelek import BeszélgetésekSzamaElfogyot 
+from project.src.backend.exceptions.SajatKivetelek import BeszélgetésekSzamaElfogyot 
 
 class AgentManagerClass():
     def __init__(self):

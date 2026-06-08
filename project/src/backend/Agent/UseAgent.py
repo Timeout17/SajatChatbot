@@ -4,11 +4,11 @@ itt fogunk tudni.
 """
 
 from groq import Groq, RateLimitError
-from src.CreateAgent import CreateCAgentClass
-from src.SajatKivetelek import KliensNemTalalhato, BeszélgetésekSzamaElfogyot
-from src.AgentManager import AgentManagerClass
-from src.Role import RoleClass
-from src.Message import MessageClass
+from project.src.backend.Agent.CreateAgent import CreateCAgentClass
+from project.src.backend.exceptions.SajatKivetelek import KliensNemTalalhato, BeszélgetésekSzamaElfogyot
+from project.src.backend.Agent.AgentManager import AgentManagerClass
+from project.src.backend.Agent.Role import RoleClass
+from project.src.backend.Agent.Message import MessageClass
 
 class UseAgentClass():
 
