@@ -1,5 +1,5 @@
 
-from SajatKivetelek import BeszélgetésekSzamaElfogyot 
+from src.SajatKivetelek import BeszélgetésekSzamaElfogyot 
 
 class AgentManagerClass():
     def __init__(self):
