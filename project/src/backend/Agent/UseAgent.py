@@ -9,6 +9,10 @@ from project.src.backend.exceptions.SajatKivetelek import KliensNemTalalhato, Be
 from project.src.backend.Agent.AgentManager import AgentManagerClass
 from project.src.backend.Agent.Role import RoleClass
 from project.src.backend.Agent.Message import MessageClass
+from project.src.backend.Agent.ContentCreateon import ContentCreatonClass
+from project.src.backend.Agent.LLMService import LLMServiceClass
+from project.src.backend.Agent.Metadatacreaton import MetadataCreatonClass
+
 
 class UseAgentClass():
 
@@ -50,56 +54,23 @@ class UseAgentClass():
         A már létrehozott Agent-t használjuk
         """
 
-        client: str | None = self.DefineAgent()
+        client: CreateCAgentClass | None = self.DefineAgent()
 
         if (client == None):
             return "a kliens nem található"
         
-
         message: str = input("kérdez bármit: ")
+        
+        content: list[dict[str, str]] = ContentCreatonClass.create_message(self.history, message)
+        response = LLMServiceClass.ChatService(self.manager, client, self.model, content)
 
-        user_message: MessageClass = MessageClass(message=message, role=RoleClass.USER)
-
-        content: list[dict[str, str]] = [
-            {
-                "role": RoleClass.SYSTEM.value,
-                "content": "Magyarul beszélsz. Kedves és segítő kész vagy"
-            }
-            ] + self.history +[
-            {
-                "role": RoleClass.USER.value,
-                "content": message
-            }
-        ]     
-        try:
-            self.manager.check_limit()
-            
-            response = client.chat.completions.create(
-                model = self.model,
-                messages = content,
-                temperature = 0.5,
-                max_completion_tokens = 1024,
-            )
-
-        except RateLimitError as r:
-            print("API limit túlterhelve")
-
-        except BeszélgetésekSzamaElfogyot as e:
-            print("Saját limit elérve")
-
-        ai_answer: str = response.choices[0].message.content 
+        ai_answer: str = response.choices[0].message.content
 
         self.Memory(message=message, ai_message=ai_answer)
 
-        metadata = {
-            "model": response.model,
-            "tokens_prompt": response.usage.prompt_tokens,
-            "tokens_completion": response.usage.completion_tokens,
-            "tokens_total": response.usage.total_tokens,
-            "response_id": response.id,
-            "created": response.created
-        }
+        metadata = MetadataCreatonClass.create_metadata(response)
 
+        user_message: MessageClass = MessageClass(message=message, role=RoleClass.USER)
         ai_message: MessageClass = MessageClass(message=ai_answer, role=RoleClass.ASSISTANT, metadata=metadata)
 
         return ai_answer
