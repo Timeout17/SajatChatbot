@@ -7,21 +7,23 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import uuid
 from typing import Optional, Dict
-from project.src.backend.Agent.Role import RoleClass
+from project.src.backend.Agent.Role import PersonRoleClass
 
 
 
 @dataclass(frozen=True)
 class MessageClass:
     """
-        message: az üzenet amit kapunk, vagy írunk
-        role: vagy mi vagyunk, vagy a rendszer, vagy az A.I amit ír
-        id: ez egy egyedi sor azonosító, ami szerin tudjuk tárolni az adatokat
-        timestamp: az aktuális dátum, és idő amikor írva volt az üzenet
-        metadata: egyéb információ amit az A.I, vagy a rendszer írt
+        message: az üzenet amit kapunk, vagy írunk\n
+        role: vagy mi vagyunk, vagy a rendszer, vagy az A.I amit ír\n
+        id: ez egy egyedi sor azonosító, ami szerin tudjuk tárolni az adatokat\n
+        timestamp: az aktuális dátum, és idő amikor írva volt az üzenet\n
+        metadata: egyéb információ amit az A.I, vagy a rendszer írt\n
     """
+    user_id: int
+    chat_id: int 
     message: str
-    role: RoleClass
+    role: PersonRoleClass
     id: str = field(default_factory=lambda: str(uuid.uuid4()), repr=False)
     timestamp: datetime = field(default_factory=datetime.now)
     metadata: Optional[Dict] = None

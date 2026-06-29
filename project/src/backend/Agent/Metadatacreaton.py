@@ -2,6 +2,7 @@ from project.src.backend.Agent.LLMService import LLMServiceClass
 
 
 class MetadataCreatonClass():
+    @staticmethod
     def create_metadata(response):
         metadata = {
                 "model": response.model,

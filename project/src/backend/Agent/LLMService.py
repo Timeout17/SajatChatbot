@@ -4,6 +4,7 @@ from groq import RateLimitError
 from project.src.backend.Agent.AgentManager import AgentManagerClass
 
 class LLMServiceClass():
+    @staticmethod
     def ChatService(manager: AgentManagerClass, client: str, model: str, content: str):
         try:
             manager.check_limit()

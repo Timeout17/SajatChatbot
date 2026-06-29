@@ -1,17 +1,18 @@
 
-from project.src.backend.Agent.Role import RoleClass
+from project.src.backend.Agent.Role import AgentRoleClass
 
 
 class ContentCreatonClass():
+    @staticmethod
     def create_message(history: list[str], message: str):
         return  [
                 {
-                "role": RoleClass.SYSTEM.value,
+                "role": AgentRoleClass.SYSTEM.value,
                     "content": "Magyarul beszélsz. Kedves és segítő kész vagy"
                 }
                 ] + history +[
                 {
-                    "role": RoleClass.USER.value,
+                    "role": AgentRoleClass.USER.value,
                     "content": message
                 }
             ]     

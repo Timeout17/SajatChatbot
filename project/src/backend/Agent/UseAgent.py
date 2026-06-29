@@ -3,24 +3,26 @@ A lényeges logika, itt történik, mivel az A.i agent-t itt fogok válaszolni, 
 itt fogunk tudni.
 """
 
-from groq import Groq, RateLimitError
 from project.src.backend.Agent.CreateAgent import CreateCAgentClass
 from project.src.backend.exceptions.SajatKivetelek import KliensNemTalalhato, BeszélgetésekSzamaElfogyot
 from project.src.backend.Agent.AgentManager import AgentManagerClass
-from project.src.backend.Agent.Role import RoleClass
-from project.src.backend.Agent.Message import MessageClass
+from project.src.backend.Agent.Role import AgentRoleClass
+from project.src.backend.models.Message import MessageClass
 from project.src.backend.Agent.ContentCreateon import ContentCreatonClass
 from project.src.backend.Agent.LLMService import LLMServiceClass
 from project.src.backend.Agent.Metadatacreaton import MetadataCreatonClass
+from project.src.backend.db.DAO import DAOCLass
 
 
 class UseAgentClass():
 
-    def __init__(self, model: str = "llama-3.3-70b-versatile"):
+    def __init__(self, current_user_id: int, chat_id: int, model: str = "llama-3.3-70b-versatile"):
         self.model = model
         self.history = []
         self.manager = AgentManagerClass()
-
+        self.user_id = current_user_id
+        self.user_id = chat_id
+        
     def DefineAgent(self) -> None | CreateCAgentClass:
         """
         Létrehozzuk a clienset amivel dolgozni fogunk
@@ -35,14 +37,17 @@ class UseAgentClass():
 
         return client
     
+    """
+    ez lesz át írva majd a sqliteos insert
+    """
     def Memory(self, message: str, ai_message: str) -> None:           
         self.history.append({
-            "role": RoleClass.USER.value,
+            "role": AgentRoleClass.USER.value,
             "content": message
         })
 
         self.history.append({
-            "role": RoleClass.ASSISTANT.value,
+            "role": AgentRoleClass.ASSISTANT.value,
             "content": ai_message
         })
 
@@ -59,7 +64,7 @@ class UseAgentClass():
         if (client == None):
             return "a kliens nem található"
         
-        message: str = input("kérdez bármit: ")
+        message: str = input("kérdezz bármit: ")
         
         content: list[dict[str, str]] = ContentCreatonClass.create_message(self.history, message)
         response = LLMServiceClass.ChatService(self.manager, client, self.model, content)
@@ -70,8 +75,10 @@ class UseAgentClass():
 
         metadata = MetadataCreatonClass.create_metadata(response)
 
-        user_message: MessageClass = MessageClass(message=message, role=RoleClass.USER)
-        ai_message: MessageClass = MessageClass(message=ai_answer, role=RoleClass.ASSISTANT, metadata=metadata)
+        user_message: MessageClass = MessageClass(message=message, role=AgentRoleClass.USER, user_id=self.user_id)
+        ai_message: MessageClass = MessageClass(message=ai_answer, role=AgentRoleClass.ASSISTANT, metadata=metadata, user_id=self.user_id)
+
+
 
         return ai_answer
 
