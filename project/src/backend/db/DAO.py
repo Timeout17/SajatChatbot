@@ -2,17 +2,17 @@
 A rendszerrel tőrténő adatmozgások itt történek
 """
 
-
+import sqlite3
 from project.src.backend.db.SQLconnection import DatabaseConnectionClass
 from project.src.backend.models.Message import MessageClass
 from project.src.backend.models.Person import Person
-from project.src.backend.auth.PasswordService import PasswordService
+from project.src.backend.services.auth.PasswordService import PasswordService
 from project.src.backend.models.Chat import ChatClass
 
 class DAOCLass():
 
     def __init__(self, connection):
-        self.conn: DatabaseConnectionClass = connection
+        self.conn: sqlite3.Connection  = connection
 
     def ListChats(self, user_id: int) -> list[ChatClass]:
         try:
@@ -46,11 +46,21 @@ class DAOCLass():
             print(e)
     
     # generálunk egy chat_id-t az autoincrementtel
-    def NewChat():
+    def NewChat(self, user_id: int, title: str):
         """
         A felhasználó indíthat egy teljesen új chatet
         """
-        pass
+        cur = self.conn.cursor()
+
+        cur.execute(
+            """
+            INSERT INTO chats(user_id, title, created_at) 
+            VALUES (?, ?, datetime('now'))
+            """, (user_id, title)
+        )
+
+        self.conn.commit()
+        return cur.lastrowid
 
     def DeleteChat():
         """
@@ -58,7 +68,43 @@ class DAOCLass():
         """
         pass
 
-    def AddMessage(self, actual_message: MessageClass) -> bool:
+    def ListMessages(self, chat_id: int, user_id: int) -> list[MessageClass]:
+        """
+        ki listázza az adott chat-hez tarotzó üzeneteket, majd a memóriához
+        """
+        try:
+            cur = self.conn.cursor()
+
+            cur.execute(
+                """
+                SELECT * FROM message WHERE user_id = ? AND chat_id = ? ORDER BY timestamp
+                """,
+                (user_id, chat_id)
+            )
+
+            rows = cur.fetchall()
+            messages = []
+
+            for row in rows:
+                messages.append(
+                MessageClass(
+                    uuid=row["uuid"],
+                    user_id=row["user_id"],
+                    chat_id=row["chat_id"],
+                    message=row["message"],
+                    role=row["role"],
+                    id=row["id"],
+                    timestamp=row["timestamp"]
+                    )
+                )
+
+            return messages
+        except Exception as e:
+            print(e)
+            return []
+
+
+    def AddMessage(self, actual_message: MessageClass) -> int:
         """
         Az üzenet hozzá adása, MINDIG lefut amikor üzetetet írunk, vagy kapunk az A.I-tól
         """
@@ -69,25 +115,50 @@ class DAOCLass():
 
             cur.execute(
                 """
-                INSERT INTO message(id, user_id, chat_id, message, role, time, metadata) VALUES(?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO message(uuid, user_id, chat_id, message, role, timestamp) VALUES(?, ?, ?, ?, ?, ?)
                 """,
                     (
-                        actual_message.id,
+                        actual_message.uuid,
                         actual_message.user_id,
                         actual_message.chat_id,
                         actual_message.message,
                         actual_message.role,
                         actual_message.timestamp,
-                        actual_message.metadata
                     )
             )
 
             self.conn.commit() # módosítás kor kell, amikor csak lekérdezés van, akkor nem kell
-            return True
+            return cur.lastrowid
 
         except Exception as e:
             print("DB error:", e)
-            return False
+            return -1
+         
+    def AddMetaData(self, message_id: int, metadata):
+        cur = self.conn.cursor()
+
+        cur.execute("""
+            INSERT INTO metadata_message(
+                message_id,
+                model,
+                tokens_prompt,
+                tokens_completion,
+                tokens_total,
+                response_id,
+                created
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            message_id,
+            metadata.model,
+            metadata.tokens_prompt,
+            metadata.tokens_completion,
+            metadata.tokens_total,
+            metadata.response_id,
+            metadata.created
+        ))
+
+        self.conn.commit()
+        return False
 
     def DeleteMessage():
         """
@@ -127,7 +198,7 @@ class DAOCLass():
                 id=row["id"],
                 username=row["username"],
                 lastname=row["lastname"],
-                firtstname=row["firstname"],
+                firstname=row["firstname"],
                 email_address=row["email_address"],
                 role=row["role"],
                 password=None
@@ -150,7 +221,7 @@ class DAOCLass():
             
             cur.execute(
                 """
-                INSERT INTO users(username, lastname, firstname, email, role, password) 
+                INSERT INTO users(username, lastname, firstname, email_address, role, password) 
                 VALUES(?, ?, ?, ?, ?, ?)
                 """,
                     (
@@ -163,7 +234,7 @@ class DAOCLass():
                         )
                     )
             
-            cur.conn.commit()
+            self.conn.commit()
             return True
         except Exception as e:
             print("DB error:", e)

@@ -3,7 +3,7 @@ A bejelentkezést, regisztrációt, és a jelszó szabályokat itt vizsgáljuk
 """
 
 
-from project.src.backend.auth.PasswordService import PasswordService
+from project.src.backend.services.auth.PasswordService import PasswordService
 from project.src.backend.models.Person import Person
 from project.src.backend.db.DAO import DAOCLass
 import re

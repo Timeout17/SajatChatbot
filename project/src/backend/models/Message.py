@@ -6,7 +6,6 @@ A Message osztály, ami el tárolja, és rendezi az üzeneteket, és a hozzá ke
 from dataclasses import dataclass, field
 from datetime import datetime
 import uuid
-from typing import Optional, Dict
 from project.src.backend.Agent.Role import PersonRoleClass
 
 
@@ -18,15 +17,14 @@ class MessageClass:
         role: vagy mi vagyunk, vagy a rendszer, vagy az A.I amit ír\n
         id: ez egy egyedi sor azonosító, ami szerin tudjuk tárolni az adatokat\n
         timestamp: az aktuális dátum, és idő amikor írva volt az üzenet\n
-        metadata: egyéb információ amit az A.I, vagy a rendszer írt\n
     """
     user_id: int
     chat_id: int 
     message: str
     role: PersonRoleClass
-    id: str = field(default_factory=lambda: str(uuid.uuid4()), repr=False)
+    id: int | None = None
+    uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=datetime.now)
-    metadata: Optional[Dict] = None
 
     # field nekünk arra kell, hogy többet tudjunk a módosítani az objektum viselkedésén
     # azért kell nekünk a field() mert maga a MessageClass majd betöltődik

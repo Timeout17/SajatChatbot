@@ -20,6 +20,7 @@ class DatabaseConnectionClass:
         """
         conn = sqlite3.connect(self.db_path) # kapcsolódik az adatbázishoz, és ha nincsen ilyen fájl, akkor létrehozza
         conn.row_factory = sqlite3.Row # hogy ne számokkal, hanem szavakkal indexeljünk
+        conn.execute("PRAGMA foreign_keys = ON;") # be kapcsoljuk a külső kulcsoakt, mert elve ki vannak kapcsolva
         print("Connected to DB:", self.db_path)
 
         return conn

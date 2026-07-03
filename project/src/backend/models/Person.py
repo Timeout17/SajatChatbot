@@ -19,12 +19,11 @@ class Person():
     __password: a felhasználó jelszava hashelve
     """
 
-    id: int | None = None
     username: str
     lastname: str
-    firtstname: str
+    firstname: str
     email_address: str
-    role: PersonRoleClass = PersonRoleClass().STANDARD_USER
     password: str
-
+    id: int | None = None
+    role: PersonRoleClass = PersonRoleClass.STANDARD_USER.value
 
