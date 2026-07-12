@@ -62,11 +62,24 @@ class DAOCLass():
         self.conn.commit()
         return cur.lastrowid
 
-    def DeleteChat():
+    def DeleteChat(self, user_id: int, chat_id: int):
         """
         A felhasználó törölheti az egyik chatjét
         """
-        pass
+        try:
+            cur = self.conn.cursor()
+
+            cur.execute(
+                """
+                DELETE FROM chats WHERE user_id = ? AND chat_id = ?
+                """,
+                (user_id, chat_id,)
+            )
+
+            self.conn.commit()
+        except Exception as e:
+            print("Nincsen mit törölni")
+            print(e)
 
     def ListMessages(self, chat_id: int, user_id: int) -> list[MessageClass]:
         """

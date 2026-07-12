@@ -10,6 +10,8 @@ from project.src.backend.Agent.ContentCreateon import ContentCreatonClass
 from project.src.backend.Agent.LLMService import LLMServiceClass
 from project.src.backend.Agent.Metadatacreaton import MetadataCreatonClass
 from project.src.backend.Agent.AIResponse import AIResponseClass
+from project.src.DocumentProccess.Searcher import SearcherClass
+
 
 
 class UseAgentClass():
@@ -45,7 +47,25 @@ class UseAgentClass():
         if self.client is None:
             return "Klines nem találhato"
                 
-        content: list[dict[str, str]] = ContentCreatonClass.create_message(history, message)
+        searcher = SearcherClass()
+
+        kontextus = searcher.search(text=message, top_k=3)
+
+        if kontextus:
+            rag_message = f"""
+            Az alábbi dokumentumrészletek alapján válaszold meg a felhasználó kérdését!
+            Csak a megadott kontextusból dolgozz! Ha a válasz nem található meg a szövegben, mondd azt, hogy "Nem tudom".
+
+            DOKUMENTUM RÉSZLETEK:
+            {kontextus}
+
+            FELHASZNÁLÓ KÉRDÉSE:
+            {message}
+            """
+        else:
+            # Ha valamiért üres a DB, akkor marad az eredeti kérdés
+            rag_message = message
+        content: list[dict[str, str]] = ContentCreatonClass.create_message(history, rag_message)
 
         response = LLMServiceClass.ChatService(
             self.manager,                                    
@@ -61,16 +81,4 @@ class UseAgentClass():
             message=ai_answer,
             metadata=metadata
         )
-
-if __name__ == "__main__":
-    agent = UseAgentClass()
-
-    history = []
-
-    while True:
-        message = input("Te: ")
-        response = agent.Answer(message, history)
-        print("AI:", response)
-
-        history.append({"role": "user", "content": message})
-        history.append({"role": "assistant", "content": response})
+    
