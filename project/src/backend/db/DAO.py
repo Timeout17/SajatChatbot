@@ -172,18 +172,6 @@ class DAOCLass():
 
         self.conn.commit()
         return False
-
-    def DeleteMessage():
-        """
-        Ez akkor fut le, ha a 20 messagenél többet írtunk, ilyenkor törli a meglévőket
-        """
-        pass
-
-    def ModifyMessage():
-        """
-        Tudja módosítani az üzeneteti ha szeretné
-        """
-        pass
     
     def UserConnention(self, username: str, password: str) -> Person:
         """
@@ -252,9 +240,3 @@ class DAOCLass():
         except Exception as e:
             print("DB error:", e)
             return False
-
-    def LimitCheck():
-        """
-        Amint eléri a 20-at azutána összegzi egy A.I-al
-        """
-        pass
