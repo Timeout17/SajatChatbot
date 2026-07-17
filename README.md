@@ -5,6 +5,38 @@ A comprehensive, production-ready Native Retrieval-Augmented Generation (RAG) sy
 > **Engineer's Note:** The core challenge of modern AI Engineering is not writing the code itself—which frameworks make accessible—but mastering **system thinking, scalable infrastructure, and robust pipeline orchestration**. This project was built to explore and solve those architectural complexities.
 
 ---
+```mermaid
+graph TD
+    %% Stílusok definiálása a szebb kinézetért
+    classDef ui fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff;
+    classDef api fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff;
+    classDef core fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff;
+    classDef db fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff;
+
+    %% A rendszer elemei
+    UI[Streamlit UI]:::ui
+    API[FastAPI Backend]:::api
+    ORCH[ChatService Orchestrator]:::core
+    AUTH[Auth & Password Service]:::core
+    AGENT[UseAgent AI Inference]:::core
+    SQL[(SQLite Relational DB)]:::db
+    VEC[(ChromaDB Vector DB)]:::db
+    DOC[Docling Document Parser]:::db
+
+    %% Folyamatok és összeköttetések
+    UI -->|HTTP Requests| API
+    API -->|Triggers Pipeline| ORCH
+    
+    ORCH --> AUTH
+    AUTH -->|User Verification| SQL
+    
+    ORCH -->|Similarity Search| VEC
+    DOC -->|Markdown Parsing| VEC
+    
+    ORCH -->|Context + Prompt| AGENT
+    AGENT -->|AI Response| ORCH
+    ORCH -->|Final Answer| UI
+```
 
 ## 🏗️ System Architecture & Infrastructure
 
