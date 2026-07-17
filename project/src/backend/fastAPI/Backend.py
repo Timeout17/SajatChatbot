@@ -27,6 +27,69 @@ class Message(BaseModel):
     chat_id: int
     prompt: str
 
+@app.post("/new_chat")
+def create_new_chat(user_id: int):
+    base_dir = Path("c:/SajatChatbot V1/project")
+    db = DatabaseConnectionClass(base_dir)
+    conn = None
+    try:
+        conn = db.connect()
+        user_dao = DAOCLass(conn)
+        
+        new_chat_id = user_dao.NewChat(user_id, title="New chat") 
+        return {"chat_id": new_chat_id}
+    except Exception as e:
+        # KŐKEMÉNY DEBUG: Ez kiírja a terminálba a pontos SQLite hibaüzenetet!
+        print(f"❌ NEW_CHAT SQL HIBA: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Hiba az új chat létrehozásakor: {str(e)}")
+    finally:
+        if conn is not None:
+            db.close(conn)
+
+@app.get("/get_user_chats")
+def get_user_chats(user_id: int):
+    base_dir = Path("c:/SajatChatbot V1/project")
+    db = DatabaseConnectionClass(base_dir)
+    conn = None
+    try:
+        conn = db.connect()
+        user_dao = DAOCLass(conn)
+        
+        # JAVÍTÁS: A te valódi DAO függvényedet hívjuk meg!
+        chats = user_dao.ListChats(user_id) 
+        
+        return chats  
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Hiba a chatek lekérésekor: {str(e)}")
+    finally:
+        if conn is not None:
+            db.close(conn)
+
+@app.post("/registration")
+def BackEnd_Registration(username: str, firstname: str, lastname: str, email: str, password: str):
+    base_dir = Path("c:/SajatChatbot V1/project") 
+    db = DatabaseConnectionClass(base_dir)
+    conn = None
+
+    try:
+        conn = db.connect()
+        user_dao = DAOCLass(conn)
+        auth = AuthServiceClass(user_dao)
+
+        Person = auth.Registration(username, lastname, firstname, password, email)
+
+        if user_dao.NewUser(Person):
+            return {"status": "sikeres regisztráció", "user_id": Person.id}
+        else:
+            return{"status": "már létezik ilyen felhasználó"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Adatbázis hiba bejelentkezéskor: {str(e)}")
+    
+    finally:
+        if conn is None:
+            db.close()
+            print("--> SQL kapcsolat sikeresen lezárva a regisztráció után.")
 
 
 @app.post("/Login")

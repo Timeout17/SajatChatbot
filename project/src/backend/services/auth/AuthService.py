@@ -21,12 +21,14 @@ class AuthServiceClass():
         user = Person(
             username=username,
             lastname=lastname,
-            firtstname=firstname,
+            firstname=firstname,  
             email_address=email,
-            password = hash_password
+            password=hash_password
         )
 
         self.user_dao.NewUser(user)
+
+        return user
 
 
     def Login(self, username: str, password: str):
