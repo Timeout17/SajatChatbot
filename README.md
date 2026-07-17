@@ -49,12 +49,12 @@ The system implements a **Dual-Database Strategy** to decouple structured relati
 Handles persistent storage for user management, session states, and system memory.
 *   `DatabaseInitializer.py`: Automates zero-configuration deployment by scaffolding tables and relationships on the first system boot.
 *   `SQLConnection.py`: Manages centralized connection pools and lifecycle states for the relational backend.
-*   `DAO.py` (Data Access Object): Implements the strict CRUD pattern, abstracts raw SQL queries into clean Python methods (e.g., `NewUser()`), and protects against injection.
+*   `DAO.py` (Data Access Object): Implements the strict CRUD pattern, abstracts raw SQL queries into clean Python methods.
 
 #### 2. Vector Database Engine (ChromaDB)
 The core knowledge retrieval pipeline of the RAG system, managing ingestion and semantic searches.
 *   `DocumentProcessor.py`: Ingests raw PDFs and parses them into standardized Markdown formats for optimized data loading.
-*   `Embedding_service.py`: Orchestrates the embedding pipelines using localized/cloud models via LangChain.
+*   `Embedding_service.py`: Initializes and exposes the HuggingFace embedding model (`all-MiniLM-L6-v2`) via LangChain for vector generation.
 *   `vector_db.py`: Direct interface with **ChromaDB** to index generated high-dimensional embedding vectors.
 *   `Searcher.py`: Executes highly optimized similarity searches targeting a threshold of `top_k=3` most relevant contexts.
 *   `System.py`: Manages the raw parsed markdown documents on the local filesystem.
